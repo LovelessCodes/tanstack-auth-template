@@ -4,6 +4,7 @@ import {
 	Heart,
 	Home,
 	Library,
+	LogIn,
 	LogOut,
 	Menu,
 	Moon,
@@ -110,7 +111,7 @@ export function MainNav() {
 							)}
 						</Button>
 
-						{user && (
+						{user ? (
 							<div className="hidden md:block">
 								<DropdownMenu>
 									<DropdownMenuTrigger asChild>
@@ -177,6 +178,15 @@ export function MainNav() {
 									</DropdownMenuContent>
 								</DropdownMenu>
 							</div>
+						) : (
+							<Button
+								variant="outline"
+								className="flex items-center gap-2"
+								onClick={() => setOpen(true)}
+							>
+								<LogIn className="h-4 w-4" />
+								<span>Sign in</span>
+							</Button>
 						)}
 
 						{/* Mobile menu button */}
@@ -235,21 +245,6 @@ export function MainNav() {
 									<div className="text-sm text-muted-foreground">
 										Signed in as: {user.username || user.email}
 									</div>
-									<Button
-										asChild
-										variant="outline"
-										size="sm"
-										className="gap-1.5"
-									>
-										<Link
-											to="/profile/$username"
-											params={{ username: user.username || user.email || "" }}
-											onClick={() => setMobileMenuOpen(false)}
-										>
-											<Settings className="h-4 w-4" />
-											Profile
-										</Link>
-									</Button>
 									<Button
 										asChild
 										variant="outline"
