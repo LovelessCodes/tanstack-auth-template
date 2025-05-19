@@ -12,6 +12,7 @@ const providers = [
 	"github",
 	"gitlab",
 	"google",
+	"kick",
 	"linkedin",
 	"microsoft",
 	"reddit",
@@ -20,6 +21,7 @@ const providers = [
 	"tiktok",
 	"twitch",
 	"vk",
+	"zoom",
 	"x",
 ];
 
