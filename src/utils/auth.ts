@@ -78,6 +78,7 @@ export const auth = betterAuth({
 		enabled: true,
 	},
 	secret: process.env.BETTER_AUTH_SECRET || undefined,
+	allowedOrigins: process.env.ALLOWED_ORIGINS?.split(",") || [],
 	socialProviders: configuredProviders,
 	plugins: [twoFactor(), passkey(), admin()],
 	user: {
