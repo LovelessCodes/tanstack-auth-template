@@ -16,6 +16,10 @@ const signUpSchema = z.object({
 	last_name: z.string().min(1, "Last name is required"),
 	email: z.string().email("Invalid email"),
 	password: z.string().min(8, "Password must be at least 8 characters"),
+	confirm_password: z.string().min(8, "Password must be at least 8 characters"),
+}).refine((data) => data.password === data.confirm_password, {
+	message: "Passwords do not match",
+	path: ["confirm_password"],
 });
 
 type SignUpFormValues = z.infer<typeof signUpSchema>;
@@ -30,6 +34,7 @@ export function SignUpForm() {
 			last_name: "",
 			email: "",
 			password: "",
+			confirm_password: "",
 		},
 	});
 	const { data: socials } = useQuery({
@@ -38,12 +43,12 @@ export function SignUpForm() {
 			fetch("/api/socials").then((res) => res.json() as Promise<string[]>),
 	});
 
-	const signupMutation = useMutation({
-		mutationFn: () =>
+	const { mutate, status } = useMutation({
+		mutationFn: (data: SignUpFormValues) =>
 			signUp.email({
-				email: form.getValues("email"),
-				password: form.getValues("password"),
-				name: `${form.getValues("first_name")} ${form.getValues("last_name")}`,
+				email: data.email,
+				password: data.password,
+				name: `${data.first_name} ${data.last_name}`,
 			}),
 		onSuccess: async (ctx) => {
 			if (!ctx.error) {
@@ -52,7 +57,16 @@ export function SignUpForm() {
 				toast.success("Signed up successfully");
 				return;
 			}
+			if (ctx.error.code === "USER_ALREADY_EXISTS") {
+				form.setError("email", {
+					message: "User already exists",
+				});
+				return;
+			}
 			toast.error(ctx.error.message);
+		},
+		onError: (error) => {
+			toast.error(error.message);
 		},
 	});
 
@@ -80,7 +94,7 @@ export function SignUpForm() {
 
 			<form
 				className="space-y-5"
-				onSubmit={form.handleSubmit((data) => signupMutation.mutate())}
+				onSubmit={form.handleSubmit((data) => mutate(data))}
 			>
 				<div className="space-y-4">
 					<div className="flex justify-between space-x-1">
@@ -148,13 +162,28 @@ export function SignUpForm() {
 							</p>
 						)}
 					</div>
+					<div className="*:not-first:mt-2">
+						<Label htmlFor={`${id}-confirm-password`}>Confirm Password</Label>
+						<PasswordInput
+							id={`${id}-confirm-password`}
+							placeholder="Confirm your password"
+							autoComplete="new-password webauthn"
+							{...form.register("confirm_password")}
+							aria-invalid={!!form.formState.errors.confirm_password}
+						/>
+						{form.formState.errors.confirm_password && (
+							<p className="text-sm text-red-500 mt-1">
+								{form.formState.errors.confirm_password.message}
+							</p>
+						)}
+					</div>
 				</div>
 				<Button
 					type="submit"
 					className="w-full"
-					disabled={signupMutation.status === "pending"}
+					disabled={status === "pending"}
 				>
-					{signupMutation.status === "pending" ? "Signing up..." : "Sign up"}
+					{status === "pending" ? "Signing up..." : "Sign up"}
 				</Button>
 			</form>
 

@@ -1,21 +1,37 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
-import { useId, useState } from "react";
+import { useId } from "react";
 import { toast } from "sonner";
-import { signIn } from "~/utils/client/auth";
+import { $ERROR_CODES, signIn } from "~/utils/client/auth";
 import PasswordInput from "~/components/input/password.input";
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const signInSchema = z.object({
+	email: z.string().email("Invalid email"),
+	password: z.string().min(8, "Password must be at least 8 characters"),
+	rememberMe: z.boolean(),
+})
+
+type SignInFormValues = z.infer<typeof signInSchema>;
 
 export function SignInForm({
 	handleSetActiveIndex,
 }: { handleSetActiveIndex: (index: number) => void }) {
 	const id = useId();
-	const [email, setEmail] = useState("");
-	const [password, setPassword] = useState("");
-	const [remember, setRemember] = useState(true);
+	const form = useForm<SignInFormValues>({
+		resolver: zodResolver(signInSchema),
+		defaultValues: {
+			email: "",
+			password: "",
+			rememberMe: true,
+		},
+	});
 	const router = useRouter();
 	const { data: socials } = useQuery({
 		queryKey: ["socials"],
@@ -24,16 +40,29 @@ export function SignInForm({
 	});
 
 	const { mutate, status } = useMutation({
-		mutationFn: () =>
+		mutationFn: (data: SignInFormValues) =>
 			signIn.email({
-				email,
-				password,
+				email: data.email,
+				password: data.password,
+				rememberMe: data.rememberMe,
 			}),
 		onSuccess: async (data) => {
 			if (!data.error) {
 				toast.success("Signed in successfully");
 				await router.invalidate();
 				router.navigate({ to: "/" });
+				return;
+			}
+			if (data.error.code === "INVALID_EMAIL_OR_PASSWORD") {
+				form.setError("email", {
+					message: "Invalid email or password",
+				});
+				return;
+			}
+			if (data.error.code === "EMAIL_NOT_VERIFIED") {
+				form.setError("email", {
+					message: "Email not verified",
+				});
 				return;
 			}
 			toast.error(data.error.message);
@@ -64,36 +93,45 @@ export function SignInForm({
 					</div>
 				</>
 			)}
-			<form className="space-y-5">
+			<form className="space-y-5" onSubmit={form.handleSubmit((data) => mutate(data))}>
 				<div className="space-y-4">
 					<div className="*:not-first:mt-2">
 						<Label htmlFor={`${id}-email`}>Email</Label>
 						<Input
 							id={`${id}-email`}
-							value={email}
-							onChange={(e) => setEmail(e.target.value)}
 							placeholder="hi@yourcompany.com"
 							type="email"
-							required
+							autoComplete="email"
+							{...form.register("email")}
+							aria-invalid={!!form.formState.errors.email}
 						/>
+						{form.formState.errors.email && (
+							<p className="text-sm text-red-500 mt-1">
+								{form.formState.errors.email.message}
+							</p>
+						)}
 					</div>
 					<div className="*:not-first:mt-2">
 						<Label htmlFor={`${id}-password`}>Password</Label>
 						<PasswordInput
 							id={`${id}-password`}
-							value={password}
-							onChange={(e) => setPassword(e.target.value)}
-							placeholder="Enter your password"
-							required
+							autoComplete="current-password"
+							{...form.register("password")}
+							aria-invalid={!!form.formState.errors.password}
 						/>
+						{form.formState.errors.password && (
+							<p className="text-sm text-red-500 mt-1">
+								{form.formState.errors.password.message}
+							</p>
+						)}
 					</div>
 				</div>
 				<div className="flex justify-between gap-2">
 					<div className="flex items-center gap-2">
 						<Checkbox
 							id={`${id}-remember`}
-							onCheckedChange={(e) => setRemember(!!e)}
-							checked={remember}
+							onCheckedChange={(e) => form.setValue("rememberMe", !!e)}
+							checked={form.watch("rememberMe")}
 						/>
 						<Label
 							htmlFor={`${id}-remember`}
@@ -111,12 +149,11 @@ export function SignInForm({
 					</button>
 				</div>
 				<Button
-					type="button"
+					type="submit"
 					className="w-full"
-					onClick={() => mutate()}
 					disabled={status === "pending"}
 				>
-					Sign in
+					{status === "pending" ? "Signing in..." : "Sign in"}
 				</Button>
 			</form>
 		</>
