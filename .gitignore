@@ -1,0 +1,32 @@
+node_modules
+package-lock.json
+yarn.lock
+bun.lock
+
+!.env
+.DS_Store
+.cache
+.vercel
+.output
+.vinxi
+
+/build/
+/api/
+/server/build
+/public/build
+.vinxi
+# Sentry Config File
+.env.sentry-build-plugin
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
+# Env
+.env
+
+# Default Database
+dev.db
+
+# Windsurf
+.windsurf

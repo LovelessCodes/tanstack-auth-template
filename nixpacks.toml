@@ -1,0 +1,15 @@
+[phases.setup]
+nixPkgs = ["bun", "nodejs"]
+systemPackages = ["sqlite", "gcc", "g++", "python3", "gnumake", "stdenv.cc.cc.lib"]
+
+[phases.install]
+cmds = ["bun install"]
+
+[phases.install.env]
+NODE_GYP_FORCE_PYTHON = "python3"
+
+[phases.build]
+cmds = ["bun run build", "bun run push"]
+
+[start]
+cmd = "bun start"
