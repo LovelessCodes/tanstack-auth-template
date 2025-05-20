@@ -44,8 +44,12 @@ export function SignInForm({
 			return;
 		}
 
-		void signIn.passkey({ autoFill: true });
-	}, []);
+		void signIn.passkey({ autoFill: true }, {
+			onSuccess: () => {
+				router.invalidate();
+			}
+		});
+	}, [router.invalidate]);
 
 	const handleSignIn = async (data: SignInFormValues) => {
 		toast.promise(
@@ -86,7 +90,6 @@ export function SignInForm({
 				loading: "Signing in...",
 				success: async () => {
 					await router.invalidate();
-					router.navigate({ to: "/" });
 					return "Signed in successfully";
 				},
 				error: (error) => {
