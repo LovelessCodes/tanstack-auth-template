@@ -1,16 +1,16 @@
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
-import { useId, useEffect } from "react";
+import { useEffect, useId } from "react";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { signIn } from "~/utils/client/auth";
+import { z } from "zod";
 import PasswordInput from "~/components/input/password.input";
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { signIn } from "~/utils/client/auth";
 
 const signInSchema = z.object({
 	email: z.string().email("Invalid email"),
@@ -40,18 +40,27 @@ export function SignInForm({
 	});
 
 	useEffect(() => {
-		if (!PublicKeyCredential.isConditionalMediationAvailable || !PublicKeyCredential.isConditionalMediationAvailable()) {
+		if (
+			!PublicKeyCredential.isConditionalMediationAvailable ||
+			!PublicKeyCredential.isConditionalMediationAvailable()
+		) {
+			toast.error("Passkey authentication is not available", {
+				description: "Your browser does not support passkey authentication",
+			});
 			return;
 		}
 
-		void signIn.passkey({ autoFill: true }, {
-			onSuccess: () => {
-				toast.success("Signed in successfully", {
-					id: "sign-in",
-				});
-				router.invalidate();
-			}
-		});
+		void signIn.passkey(
+			{ autoFill: true },
+			{
+				onSuccess: () => {
+					toast.success("Signed in successfully", {
+						id: "sign-in",
+					});
+					router.invalidate();
+				},
+			},
+		);
 	}, [router.invalidate]);
 
 	const handleSignIn = async (data: SignInFormValues) => {
