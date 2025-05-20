@@ -38,12 +38,6 @@ function SettingsIndexPage() {
 		disabled?: boolean;
 	}[] = [
 		{
-			title: "Profile Settings",
-			description: "Manage your profile sharing preferences and username",
-			icon: <Share2 className="h-6 w-6" />,
-			link: "/settings/profile",
-		},
-		{
 			title: "Account Settings",
 			description: "Update your account information and email preferences",
 			icon: <User className="h-6 w-6" />,

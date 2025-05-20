@@ -46,6 +46,15 @@ const accountFormSchema = z.object({
 		.max(50, "Name must be less than 50 characters"),
 	email: z.string().email("Please enter a valid email address"),
 	image: z.string().url("Avatar URL must be a valid URL").nullable().optional(),
+	username: z
+		.string()
+		.min(3, "Username must be at least 3 characters")
+		.max(30, "Username must be less than 30 characters")
+		.regex(
+			/^[a-zA-Z0-9_-]+$/,
+			"Username can only contain letters, numbers, underscores, and hyphens",
+		)
+		.optional(),
 });
 
 // Define the form values type
@@ -67,6 +76,11 @@ function AccountSettingsPage() {
 			if (user?.name !== form.getValues("name")) {
 				return updateUser({
 					name: form.getValues("name"),
+				});
+			}
+			if (user?.username !== form.getValues("username")) {
+				return updateUser({
+					username: form.getValues("username"),
 				});
 			}
 			if (user?.email !== form.getValues("email")) {
@@ -102,6 +116,7 @@ function AccountSettingsPage() {
 			name: "",
 			email: "",
 			image: null,
+			username: "",
 		},
 	});
 
@@ -112,6 +127,7 @@ function AccountSettingsPage() {
 				name: user.name || "",
 				email: user.email || "",
 				image: user.image || null,
+				username: user.username || "",
 			});
 			setAvatarPreview(user.image || null);
 		}
@@ -230,8 +246,29 @@ function AccountSettingsPage() {
 													/>
 												</div>
 											</FormControl>
+											<FormDescription>This is your full name.</FormDescription>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+
+								<FormField
+									name="username"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Username</FormLabel>
+											<FormControl>
+												<div className="relative">
+													<User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+													<Input
+														placeholder="Your Username"
+														className="pl-9"
+														{...field}
+													/>
+												</div>
+											</FormControl>
 											<FormDescription>
-												This is your public display name.
+												This is your public username.
 											</FormDescription>
 											<FormMessage />
 										</FormItem>
