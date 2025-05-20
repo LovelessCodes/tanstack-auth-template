@@ -1,10 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import {
-	CheckIcon,
-	XIcon,
-} from "lucide-react";
+import { CheckIcon, XIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -14,7 +11,10 @@ import { AddPasskeyDialog } from "~/components/dialog/add-passkey.dialog";
 import { BackupCodesDialog } from "~/components/dialog/backup-codes.dialog";
 import { TwoFactorDialog } from "~/components/dialog/two-factor.dialog";
 import PasswordInput from "~/components/input/password.input";
-import { PasskeyList, PasskeyListSkeleton } from "~/components/list/passkey.list";
+import {
+	PasskeyList,
+	PasskeyListSkeleton,
+} from "~/components/list/passkey.list";
 import { Button } from "~/components/ui/button";
 import {
 	Card,
@@ -31,7 +31,12 @@ import {
 	FormLabel,
 	FormMessage,
 } from "~/components/ui/form";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "~/components/ui/tooltip";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipProvider,
+	TooltipTrigger,
+} from "~/components/ui/tooltip";
 import { Route as RootRoute } from "~/routes/__root";
 import { changePassword, passkey } from "~/utils/client/auth";
 
@@ -60,12 +65,11 @@ type PasswordFormValues = z.infer<typeof passwordFormSchema>;
 
 function SecuritySettingsPage() {
 	const { user } = RootRoute.useRouteContext();
-  const [isAddPasskeyDialogOpen, setIsAddPasskeyDialogOpen] = useState(false);
-  const queryClient = useQueryClient();
+	const queryClient = useQueryClient();
 
-  const handlePasskeyAdded = () => {
-    queryClient.invalidateQueries({ queryKey: ["passkeyList"] });
-  };
+	const handlePasskeyAdded = () => {
+		queryClient.invalidateQueries({ queryKey: ["passkeyList"] });
+	};
 
 	const form = useForm<PasswordFormValues>({
 		resolver: zodResolver(passwordFormSchema),
@@ -78,15 +82,16 @@ function SecuritySettingsPage() {
 
 	const { data: passkeyList } = useQuery({
 		queryKey: ["passkeyList"],
-		queryFn: () => passkey.listUserPasskeys().then(d => {
-			if (d.error) {
-				toast.error("Error loading passkeys", {
-					description: `${d.error.message}`,
-				});
-			}
-			return d.data;
-		}),
-	})
+		queryFn: () =>
+			passkey.listUserPasskeys().then((d) => {
+				if (d.error) {
+					toast.error("Error loading passkeys", {
+						description: `${d.error.message}`,
+					});
+				}
+				return d.data;
+			}),
+	});
 
 	const onSubmit = (values: PasswordFormValues) => {
 		mutation.mutate(values);
@@ -190,24 +195,29 @@ function SecuritySettingsPage() {
 											</FormItem>
 										)}
 									/>
-									{form.getFieldState("password").isDirty && (<FormField
-										name="confirm_password"
-										render={({ field }) => (
-											<motion.div initial={{ opacity: 0, y: -50 }} animate={{ opacity: 1, y: 0 }}>
-												<FormItem>
-													<FormLabel>Confirm Password</FormLabel>
-													<FormControl>
-														<PasswordInput
-															placeholder="your-new-password"
-															{...field}
-															value={field.value || ""}
-														/>
-													</FormControl>
-													<FormMessage />
-												</FormItem>
-											</motion.div>
-										)}
-									/>)}
+									{form.getFieldState("password").isDirty && (
+										<FormField
+											name="confirm_password"
+											render={({ field }) => (
+												<motion.div
+													initial={{ opacity: 0, y: -50 }}
+													animate={{ opacity: 1, y: 0 }}
+												>
+													<FormItem>
+														<FormLabel>Confirm Password</FormLabel>
+														<FormControl>
+															<PasswordInput
+																placeholder="your-new-password"
+																{...field}
+																value={field.value || ""}
+															/>
+														</FormControl>
+														<FormMessage />
+													</FormItem>
+												</motion.div>
+											)}
+										/>
+									)}
 								</AnimatePresence>
 
 								<Button type="submit" disabled={mutation.isPending}>
@@ -219,7 +229,8 @@ function SecuritySettingsPage() {
 				</Card>
 				<Card>
 					<CardHeader>
-						<CardTitle className="flex items-center gap-2">Two Factor Authentication 
+						<CardTitle className="flex items-center gap-2">
+							Two Factor Authentication
 							<TooltipProvider>
 								<Tooltip>
 									<TooltipTrigger asChild>
@@ -236,17 +247,18 @@ function SecuritySettingsPage() {
 							</TooltipProvider>
 						</CardTitle>
 						<CardDescription>
-							Two factor authentication adds an extra layer of security to
-							your account.
+							Two factor authentication adds an extra layer of security to your
+							account.
 						</CardDescription>
 					</CardHeader>
 					<CardContent>
-						<TwoFactorDialog
-							is2FAEnabled={!!user?.twoFactorEnabled}
-						/>
+						<TwoFactorDialog is2FAEnabled={!!user?.twoFactorEnabled} />
 						{!!user?.twoFactorEnabled && (
 							<div className="flex items-center gap-2 w-fit py-2">
-								<TwoFactorDialog isShowQR is2FAEnabled={!!user?.twoFactorEnabled} />
+								<TwoFactorDialog
+									isShowQR
+									is2FAEnabled={!!user?.twoFactorEnabled}
+								/>
 								<BackupCodesDialog />
 							</div>
 						)}
@@ -256,11 +268,7 @@ function SecuritySettingsPage() {
 					<CardHeader>
 						<CardTitle className="flex items-center gap-2">
 							Passkeys
-							<AddPasskeyDialog
-								open={isAddPasskeyDialogOpen}
-								onOpenChange={setIsAddPasskeyDialogOpen}
-								onSuccess={handlePasskeyAdded}
-							/>
+							<AddPasskeyDialog onSuccess={handlePasskeyAdded} />
 						</CardTitle>
 						<CardDescription>
 							Passkeys are a secure way to access your account, which adds an

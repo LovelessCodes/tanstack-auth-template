@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
 import { Button } from "~/components/ui/button";
 import {
 	Dialog,
@@ -40,16 +41,11 @@ const passkeyFormSchema = z.object({
 type PasskeyFormValues = z.infer<typeof passkeyFormSchema>;
 
 interface AddPasskeyDialogProps {
-	open: boolean;
-	onOpenChange: (open: boolean) => void;
 	onSuccess: () => void;
 }
 
-export function AddPasskeyDialog({
-	open,
-	onOpenChange,
-	onSuccess,
-}: AddPasskeyDialogProps) {
+export function AddPasskeyDialog({ onSuccess }: AddPasskeyDialogProps) {
+	const [open, setOpen] = useState(false);
 	const form = useForm<PasskeyFormValues>({
 		resolver: zodResolver(passkeyFormSchema),
 		defaultValues: {
@@ -76,7 +72,7 @@ export function AddPasskeyDialog({
 				id: "add-passkey",
 			});
 			onSuccess();
-			onOpenChange(false);
+			setOpen(false);
 			form.reset();
 		},
 		onError: () => {
@@ -91,12 +87,16 @@ export function AddPasskeyDialog({
 	};
 
 	return (
-		<Dialog open={open} onOpenChange={onOpenChange}>
+		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger asChild>
 				<TooltipProvider>
 					<Tooltip>
 						<TooltipTrigger asChild>
-							<Button variant="outline" size="icon">
+							<Button
+								variant="outline"
+								size="icon"
+								onClick={() => setOpen(true)}
+							>
 								<PlusIcon className="h-4 w-4" />
 							</Button>
 						</TooltipTrigger>
@@ -141,7 +141,7 @@ export function AddPasskeyDialog({
 							<Button
 								type="button"
 								variant="outline"
-								onClick={() => onOpenChange(false)}
+								onClick={() => setOpen(false)}
 								disabled={isPending}
 							>
 								Cancel
