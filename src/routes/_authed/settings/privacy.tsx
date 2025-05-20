@@ -11,6 +11,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { BackupCodesDialog } from "~/components/dialog/backup-codes.dialog";
 import { TwoFactorDialog } from "~/components/dialog/two-factor.dialog";
 import PasswordInput from "~/components/input/password.input";
 import { Button } from "~/components/ui/button";
@@ -238,10 +239,8 @@ function SecuritySettingsPage() {
 								</TooltipProvider>
 								<TooltipProvider>
 									<Tooltip>
-										<TooltipTrigger asChild>
-											<Button variant="outline">
-												<RectangleEllipsisIcon className="h-4 w-4" />
-											</Button>
+										<TooltipTrigger>
+											<BackupCodesDialog />
 										</TooltipTrigger>
 										<TooltipContent>
 											Show Backup Codes
