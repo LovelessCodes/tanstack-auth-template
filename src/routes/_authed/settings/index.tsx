@@ -1,10 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Link } from "@tanstack/react-router";
-import { Settings, Share2, Shield, User } from "lucide-react";
+import { Shield, User } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import {
 	Card,
-	CardContent,
 	CardDescription,
 	CardFooter,
 	CardHeader,

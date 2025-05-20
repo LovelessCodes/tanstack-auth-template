@@ -1,15 +1,12 @@
 import { Link } from "@tanstack/react-router";
 import {
 	ChevronDown,
-	Heart,
 	Home,
-	Library,
 	LogIn,
 	LogOut,
 	Menu,
 	Moon,
 	Settings,
-	Share2,
 	Sun,
 	X,
 } from "lucide-react";
@@ -59,7 +56,7 @@ export function MainNav() {
 	return (
 		<nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
 			<div className="container mx-auto px-4">
-				<div className="grid h-16 items-center grid-cols-3">
+				<div className="grid h-16 items-center grid-cols-2 md:grid-cols-3">
 					{/* Logo and brand */}
 					<div className="flex items-center">
 						<Link
@@ -68,7 +65,11 @@ export function MainNav() {
 						>
 							<AuroraText
 								speed={1.5}
-								colors={["var(--lavender)", "var(--peach)", "var(--rosewater)"]}
+								colors={[
+									"var(--color-blue-500)",
+									"var(--color-mauve)",
+									"var(--color-purple-500)",
+								]}
 							>
 								Template
 							</AuroraText>
@@ -98,10 +99,9 @@ export function MainNav() {
 					{/* User actions */}
 					<div className="flex items-center gap-4 justify-end">
 						<Button
-							variant="ghost"
+							variant="outline"
 							size="icon"
 							onClick={toggleTheme}
-							className="rounded-sm border-2 border-input cursor-pointer shadow-[4px_4px_0_0_var(--surface-0)] transition-all hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none"
 							aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
 						>
 							{theme === "light" ? (
