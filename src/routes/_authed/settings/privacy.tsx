@@ -3,7 +3,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import {
 	CheckIcon,
-	PlusIcon, 
 	XIcon,
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";

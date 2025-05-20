@@ -8,7 +8,6 @@ export const Route = createFileRoute("/_authed")({
 			});
 		}
 	},
-	loader: () => null,
 	component: AuthedLayout,
 });
 
