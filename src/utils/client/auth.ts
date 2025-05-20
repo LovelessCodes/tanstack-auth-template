@@ -32,6 +32,7 @@ export const {
 	verifyEmail,
 	$ERROR_CODES,
 } = createAuthClient({
+	// @ts-ignore
 	baseURL: import.meta.env.VITE_BETTER_AUTH_URL || "http://localhost:4005",
 	plugins: [
 		twoFactorClient(),

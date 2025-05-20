@@ -85,7 +85,8 @@ export function TwoFactorDialog({
 					})
 				: twoFactor.enable({
 						password,
-						issuer: "tanstack-auth-template",
+						// @ts-ignore
+						issuer: import.meta.env.VITE_BETTER_AUTH_APP_NAME || "tanstack-auth-template",
 					}),
 			{
 				loading: "Verifying password...",

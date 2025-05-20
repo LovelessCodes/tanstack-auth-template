@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
-import { useId } from "react";
+import { useId, useEffect } from "react";
 import { toast } from "sonner";
 import { signIn } from "~/utils/client/auth";
 import PasswordInput from "~/components/input/password.input";
@@ -38,6 +38,14 @@ export function SignInForm({
 		queryFn: () =>
 			fetch("/api/socials").then((res) => res.json() as Promise<string[]>),
 	});
+
+	useEffect(() => {
+		if (!PublicKeyCredential.isConditionalMediationAvailable || !PublicKeyCredential.isConditionalMediationAvailable()) {
+			return;
+		}
+
+		void signIn.passkey({ autoFill: true });
+	}, []);
 
 	const handleSignIn = async (data: SignInFormValues) => {
 		toast.promise(
@@ -125,7 +133,7 @@ export function SignInForm({
 							id={`${id}-email`}
 							placeholder="hi@yourcompany.com"
 							type="email"
-							autoComplete="email"
+							autoComplete="email webauthn"
 							{...form.register("email")}
 							aria-invalid={!!form.formState.errors.email}
 						/>
@@ -139,7 +147,7 @@ export function SignInForm({
 						<Label htmlFor={`${id}-password`}>Password</Label>
 						<PasswordInput
 							id={`${id}-password`}
-							autoComplete="current-password"
+							autoComplete="current-password webauthn"
 							{...form.register("password")}
 							aria-invalid={!!form.formState.errors.password}
 						/>

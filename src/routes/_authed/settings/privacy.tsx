@@ -1,16 +1,17 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import {
 	CheckIcon,
-	QrCodeIcon,
-	RectangleEllipsisIcon,
+	PlusIcon, 
 	XIcon,
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { AddPasskeyDialog } from "~/components/dialog/add-passkey.dialog";
 import { BackupCodesDialog } from "~/components/dialog/backup-codes.dialog";
 import { TwoFactorDialog } from "~/components/dialog/two-factor.dialog";
 import PasswordInput from "~/components/input/password.input";
@@ -32,7 +33,7 @@ import {
 } from "~/components/ui/form";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "~/components/ui/tooltip";
 import { Route as RootRoute } from "~/routes/__root";
-import { changePassword } from "~/utils/client/auth";
+import { changePassword, passkey } from "~/utils/client/auth";
 
 export const Route = createFileRoute("/_authed/settings/privacy")({
 	component: SecuritySettingsPage,
@@ -59,6 +60,12 @@ type PasswordFormValues = z.infer<typeof passwordFormSchema>;
 
 function SecuritySettingsPage() {
 	const { user } = RootRoute.useRouteContext();
+  const [isAddPasskeyDialogOpen, setIsAddPasskeyDialogOpen] = useState(false);
+  const queryClient = useQueryClient();
+
+  const handlePasskeyAdded = () => {
+    queryClient.invalidateQueries({ queryKey: ["passkeyList"] });
+  };
 
 	const form = useForm<PasswordFormValues>({
 		resolver: zodResolver(passwordFormSchema),
@@ -68,6 +75,18 @@ function SecuritySettingsPage() {
 			confirm_password: "",
 		},
 	});
+
+	const { data: passkeyList } = useQuery({
+		queryKey: ["passkeyList"],
+		queryFn: () => passkey.listUserPasskeys().then(d => {
+			if (d.error) {
+				toast.error("Error loading passkeys", {
+					description: `${d.error.message}`,
+				});
+			}
+			return d.data;
+		}),
+	})
 
 	const onSubmit = (values: PasswordFormValues) => {
 		mutation.mutate(values);
@@ -142,7 +161,7 @@ function SecuritySettingsPage() {
 									<FormField
 										name="old_password"
 										render={({ field }) => (
-											<FormItem>
+											<FormItem id="old_password">
 												<FormLabel>Old Password</FormLabel>
 												<FormControl>
 													<PasswordInput
@@ -158,7 +177,7 @@ function SecuritySettingsPage() {
 									<FormField
 										name="password"
 										render={({ field }) => (
-											<FormItem>
+											<FormItem id="password">
 												<FormLabel>Password</FormLabel>
 												<FormControl>
 													<PasswordInput
@@ -253,12 +272,36 @@ function SecuritySettingsPage() {
 				</Card>
 				<Card>
 					<CardHeader>
-						<CardTitle>Passkeys</CardTitle>
+						<CardTitle className="flex items-center gap-2">
+							Passkeys
+							<TooltipProvider>
+								<Tooltip>
+									<TooltipTrigger>
+										<AddPasskeyDialog
+											open={isAddPasskeyDialogOpen}
+											onOpenChange={setIsAddPasskeyDialogOpen}
+											onSuccess={handlePasskeyAdded}
+										/>
+									</TooltipTrigger>
+									<TooltipContent>
+										Add new passkey
+									</TooltipContent>
+								</Tooltip>
+							</TooltipProvider>
+						</CardTitle>
 						<CardDescription>
 							Passkeys are a secure way to access your account, which adds an
 							additional layer of security to your account.
 						</CardDescription>
 					</CardHeader>
+					<CardContent>
+						{/* Let's show a list of the passkeys the user has assigned */}
+						{passkeyList?.length ? passkeyList?.map((passkey) => (
+							<div key={passkey.id}>
+								{passkey.name}
+							</div>
+						)) : "No passkeys assigned" }
+					</CardContent>
 				</Card>
 			</div>
 		</div>
