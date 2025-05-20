@@ -15,7 +15,7 @@ import { AddPasskeyDialog } from "~/components/dialog/add-passkey.dialog";
 import { BackupCodesDialog } from "~/components/dialog/backup-codes.dialog";
 import { TwoFactorDialog } from "~/components/dialog/two-factor.dialog";
 import PasswordInput from "~/components/input/password.input";
-import { PasskeyList } from "~/components/list/passkey.list";
+import { PasskeyList, PasskeyListSkeleton } from "~/components/list/passkey.list";
 import { Button } from "~/components/ui/button";
 import {
 	Card,
@@ -269,7 +269,11 @@ function SecuritySettingsPage() {
 						</CardDescription>
 					</CardHeader>
 					<CardContent>
-						<PasskeyList passkeys={passkeyList} />
+						{passkeyList ? (
+							<PasskeyList passkeys={passkeyList} />
+						) : (
+							<PasskeyListSkeleton />
+						)}
 					</CardContent>
 				</Card>
 			</div>
