@@ -26,6 +26,7 @@ import {
 import { Input } from "~/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { passkey } from "~/utils/client/auth";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 
 const passkeyFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -82,9 +83,18 @@ export function AddPasskeyDialog({ open, onOpenChange, onSuccess }: AddPasskeyDi
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="icon">
-          <PlusIcon className="h-4 w-4" />
-        </Button>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger>
+              <Button variant="outline" size="icon">
+                <PlusIcon className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              Add Passkey
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

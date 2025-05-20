@@ -46,6 +46,9 @@ export function SignInForm({
 
 		void signIn.passkey({ autoFill: true }, {
 			onSuccess: () => {
+				toast.success("Signed in successfully", {
+					id: "sign-in",
+				});
 				router.invalidate();
 			}
 		});

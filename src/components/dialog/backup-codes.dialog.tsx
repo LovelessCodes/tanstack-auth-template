@@ -15,6 +15,7 @@ import { Label } from "~/components/ui/label";
 import PasswordInput from "~/components/input/password.input";
 import { TransitionPanel } from "~/components/ui/transition-panel";
 import { twoFactor } from "~/utils/client/auth";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 
 export function BackupCodesDialog() {
   const [open, setOpen] = useState(false);
@@ -264,9 +265,18 @@ export function BackupCodesDialog() {
       }}
     >
       <DialogTrigger asChild>
-        <Button variant="outline">
-          <RectangleEllipsisIcon className="h-4 w-4" />
-        </Button>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="outline">
+                <RectangleEllipsisIcon className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              Show Backup Codes
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>

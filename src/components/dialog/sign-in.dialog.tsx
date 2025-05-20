@@ -16,7 +16,6 @@ import { signinStore } from "~/hooks/signin.store";
 import { SignInForm } from "../form/sign-in.form";
 import { SignUpForm } from "../form/sign-up.form";
 import TwoFactorForm from "../form/two-factor.form";
-import { signIn } from "~/utils/client/auth";
 
 export default function SignInDialog() {
 	const [activeIndex, setActiveIndex] = useState(0);

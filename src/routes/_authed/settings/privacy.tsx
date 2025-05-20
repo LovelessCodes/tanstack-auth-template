@@ -246,26 +246,8 @@ function SecuritySettingsPage() {
 						/>
 						{!!user?.twoFactorEnabled && (
 							<div className="flex items-center gap-2 w-fit py-2">
-								<TooltipProvider>
-									<Tooltip>
-										<TooltipTrigger>
-											<TwoFactorDialog isShowQR is2FAEnabled={!!user?.twoFactorEnabled} />
-										</TooltipTrigger>
-										<TooltipContent>
-											Show 2FA QR Code
-										</TooltipContent>
-									</Tooltip>
-								</TooltipProvider>
-								<TooltipProvider>
-									<Tooltip>
-										<TooltipTrigger>
-											<BackupCodesDialog />
-										</TooltipTrigger>
-										<TooltipContent>
-											Show Backup Codes
-										</TooltipContent>
-									</Tooltip>
-								</TooltipProvider>
+								<TwoFactorDialog isShowQR is2FAEnabled={!!user?.twoFactorEnabled} />
+								<BackupCodesDialog />
 							</div>
 						)}
 					</CardContent>
@@ -274,20 +256,11 @@ function SecuritySettingsPage() {
 					<CardHeader>
 						<CardTitle className="flex items-center gap-2">
 							Passkeys
-							<TooltipProvider>
-								<Tooltip>
-									<TooltipTrigger>
-										<AddPasskeyDialog
-											open={isAddPasskeyDialogOpen}
-											onOpenChange={setIsAddPasskeyDialogOpen}
-											onSuccess={handlePasskeyAdded}
-										/>
-									</TooltipTrigger>
-									<TooltipContent>
-										Add new passkey
-									</TooltipContent>
-								</Tooltip>
-							</TooltipProvider>
+							<AddPasskeyDialog
+								open={isAddPasskeyDialogOpen}
+								onOpenChange={setIsAddPasskeyDialogOpen}
+								onSuccess={handlePasskeyAdded}
+							/>
 						</CardTitle>
 						<CardDescription>
 							Passkeys are a secure way to access your account, which adds an
@@ -298,7 +271,7 @@ function SecuritySettingsPage() {
 						{/* Let's show a list of the passkeys the user has assigned */}
 						{passkeyList?.length ? passkeyList?.map((passkey) => (
 							<div key={passkey.id}>
-								{passkey.name}
+								{passkey.name} {passkey.deviceType}
 							</div>
 						)) : "No passkeys assigned" }
 					</CardContent>

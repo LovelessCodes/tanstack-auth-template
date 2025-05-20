@@ -1,11 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import useMeasure from "react-use-measure";
 import {
 	CheckCircle,
 	Copy,
-	Loader2,
 	QrCodeIcon,
-	RefreshCw,
 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { toast } from "sonner";
@@ -22,15 +20,10 @@ import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import PasswordInput from "~/components/input/password.input";
 import { TransitionPanel } from "~/components/ui/transition-panel";
-import {
-	InputOTP,
-	InputOTPGroup,
-	InputOTPSlot,
-	InputOTPSeparator,
-} from "~/components/ui/input-otp";
 import { twoFactor } from "~/utils/client/auth";
 import { useRouter } from "@tanstack/react-router";
 import TwoFactorForm from "../form/two-factor.form";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 
 interface TwoFactorDialogProps {
 	is2FAEnabled: boolean;
@@ -277,15 +270,30 @@ export function TwoFactorDialog({
 			}}
 		>
 			<DialogTrigger asChild>
-				<Button variant="outline" onClick={() => setOpen(true)}>
-					{isShowQR ? (
-						<QrCodeIcon className="h-4 w-4" />
-					) : is2FAEnabled ? (
-						"Disable two-factor authentication"
-					) : (
-						"Enable two-factor authentication"
-					)}
-				</Button>
+				<TooltipProvider>
+					<Tooltip>
+						<TooltipTrigger asChild>
+							<Button variant="outline" onClick={() => setOpen(true)}>
+								{isShowQR ? (
+									<QrCodeIcon className="h-4 w-4" />
+								) : is2FAEnabled ? (
+									"Disable two-factor authentication"
+								) : (
+									"Enable two-factor authentication"
+								)}
+							</Button>
+						</TooltipTrigger>
+						<TooltipContent>
+							{isShowQR ? (
+								"Show QR Code"
+							) : is2FAEnabled ? (
+								"Disable two-factor authentication"
+							) : (
+								"Enable two-factor authentication"
+							)}
+						</TooltipContent>
+					</Tooltip>
+				</TooltipProvider>
 			</DialogTrigger>
 			<DialogContent className="overflow-x-hidden px-16">
 				<DialogHeader>
