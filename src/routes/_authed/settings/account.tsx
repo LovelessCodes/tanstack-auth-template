@@ -27,6 +27,7 @@ import {
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { Route as RootRoute } from "~/routes/__root";
+import { getInitials } from "~/utils";
 import { changeEmail, updateUser } from "~/utils/client/auth";
 
 // Fetch account settings
@@ -71,26 +72,26 @@ function AccountSettingsPage() {
 	const router = useRouter();
 
 	// Mutation to update account settings
-	const mutation = useMutation({
-		mutationFn: () => {
-			if (user?.name !== form.getValues("name")) {
+	const { mutate, status } = useMutation({
+		mutationFn: (values: AccountFormValues) => {
+			if (user?.name !== values.name) {
 				return updateUser({
-					name: form.getValues("name"),
+					name: values.name,
 				});
 			}
-			if (user?.username !== form.getValues("username")) {
+			if (user?.username !== values.username) {
 				return updateUser({
-					username: form.getValues("username"),
+					username: values.username,
 				});
 			}
-			if (user?.email !== form.getValues("email")) {
+			if (user?.email !== values.email) {
 				return changeEmail({
-					newEmail: form.getValues("email"),
+					newEmail: values.email,
 				});
 			}
-			if (user?.image !== form.getValues("image")) {
+			if (user?.image !== values.image) {
 				return updateUser({
-					image: form.getValues("image"),
+					image: values.image,
 				});
 			}
 			throw new Error("No changes detected");
@@ -144,17 +145,7 @@ function AccountSettingsPage() {
 	};
 
 	const onSubmit = (values: AccountFormValues) => {
-		mutation.mutate();
-	};
-
-	// Generate initials for avatar fallback
-	const getInitials = (name: string) => {
-		return name
-			.split(" ")
-			.map((n) => n[0])
-			.join("")
-			.toUpperCase()
-			.substring(0, 2);
+		mutate(values);
 	};
 
 	if (!user) {
@@ -301,9 +292,9 @@ function AccountSettingsPage() {
 								<CardFooter className="px-0 pt-4">
 									<Button
 										type="submit"
-										disabled={mutation.isPending || !form.formState.isDirty}
+										disabled={status === "pending" || !form.formState.isDirty}
 									>
-										{mutation.isPending ? "Saving..." : "Save Changes"}
+										{status === "pending" ? "Saving..." : "Save Changes"}
 									</Button>
 								</CardFooter>
 							</form>

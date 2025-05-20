@@ -44,9 +44,6 @@ export function SignInForm({
 			!PublicKeyCredential.isConditionalMediationAvailable ||
 			!PublicKeyCredential.isConditionalMediationAvailable()
 		) {
-			toast.error("Passkey authentication is not available", {
-				description: "Your browser does not support passkey authentication",
-			});
 			return;
 		}
 
@@ -162,7 +159,7 @@ export function SignInForm({
 						<Label htmlFor={`${id}-password`}>Password</Label>
 						<PasswordInput
 							id={`${id}-password`}
-							autoComplete="current-password webauthn"
+							autoComplete=" current-password webauthn"
 							{...form.register("password")}
 							aria-invalid={!!form.formState.errors.password}
 						/>

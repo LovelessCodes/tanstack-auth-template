@@ -25,6 +25,7 @@ import {
 import { signinStore } from "~/hooks/signin.store";
 import { themeStore } from "~/hooks/theme.store";
 import { Route as RootRoute } from "~/routes/__root";
+import { getInitials } from "~/utils";
 import { AuroraText } from "../magicui/aurora-text";
 
 export function MainNav() {
@@ -122,9 +123,7 @@ export function MainNav() {
 											<Avatar className="h-6 w-6">
 												<AvatarImage src={user.image || undefined} />
 												<AvatarFallback className="bg-primary text-primary-foreground text-xs">
-													{(user.username || user.email || "")
-														.substring(0, 2)
-														.toUpperCase()}
+													{getInitials(user.name || user.email || "User")}
 												</AvatarFallback>
 											</Avatar>
 											<span className="text-sm font-normal">
