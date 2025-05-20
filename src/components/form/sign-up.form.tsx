@@ -49,25 +49,22 @@ export function SignUpForm() {
 				email: data.email,
 				password: data.password,
 				name: `${data.first_name} ${data.last_name}`,
+			}, {
+				onSuccess: async (data) => {
+					toast.success("Signed up successfully");
+					await router.invalidate();
+					router.navigate({ to: "/" });
+				},
+				onError: (error) => {
+					if (error.error.code === "USER_ALREADY_EXISTS") {
+						form.setError("email", {
+							message: "User already exists",
+						});
+						return;
+					}
+					toast.error(error.error.message);
+				},
 			}),
-		onSuccess: async (ctx) => {
-			if (!ctx.error) {
-				await router.invalidate();
-				router.navigate({ to: "/" });
-				toast.success("Signed up successfully");
-				return;
-			}
-			if (ctx.error.code === "USER_ALREADY_EXISTS") {
-				form.setError("email", {
-					message: "User already exists",
-				});
-				return;
-			}
-			toast.error(ctx.error.message);
-		},
-		onError: (error) => {
-			toast.error(error.message);
-		},
 	});
 
 	return (

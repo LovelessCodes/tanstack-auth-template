@@ -45,31 +45,32 @@ export function SignInForm({
 				email: data.email,
 				password: data.password,
 				rememberMe: data.rememberMe,
+			}, {
+				onSuccess: async (data) => {
+					if (data.data.twoFactorRedirect) {
+						handleSetActiveIndex(3);
+						return;
+					}
+					toast.success("Signed in successfully");
+					await router.invalidate();
+					router.navigate({ to: "/" });
+				},
+				onError: (error) => {
+					if (error.error.code === "INVALID_EMAIL_OR_PASSWORD") {
+						form.setError("email", {
+							message: "Invalid email or password",
+						});
+						return;
+					}
+					if (error.error.code === "EMAIL_NOT_VERIFIED") {
+						form.setError("email", {
+							message: "Email not verified",
+						});
+						return;
+					}
+					toast.error(error.error.message);
+				},
 			}),
-		onSuccess: async (data) => {
-			if (!data.error) {
-				toast.success("Signed in successfully");
-				await router.invalidate();
-				router.navigate({ to: "/" });
-				return;
-			}
-			if (data.error.code === "INVALID_EMAIL_OR_PASSWORD") {
-				form.setError("email", {
-					message: "Invalid email or password",
-				});
-				return;
-			}
-			if (data.error.code === "EMAIL_NOT_VERIFIED") {
-				form.setError("email", {
-					message: "Email not verified",
-				});
-				return;
-			}
-			toast.error(data.error.message);
-		},
-		onError: (error) => {
-			toast.error(error.message);
-		},
 	});
 
 	return (

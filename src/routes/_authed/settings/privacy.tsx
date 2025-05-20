@@ -10,6 +10,7 @@ import {
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { TwoFactorDialog } from "~/components/dialog/two-factor.dialog";
 import PasswordInput from "~/components/input/password.input";
 import { Button } from "~/components/ui/button";
 import {
@@ -57,9 +58,7 @@ const passwordFormSchema = z
 type PasswordFormValues = z.infer<typeof passwordFormSchema>;
 
 function SecuritySettingsPage() {
-	const { user, session } = RootRoute.useRouteContext();
-	const queryClient = useQueryClient();
-	const router = useRouter();
+	const { user } = RootRoute.useRouteContext();
 
 	const form = useForm<PasswordFormValues>({
 		resolver: zodResolver(passwordFormSchema),
@@ -215,16 +214,9 @@ function SecuritySettingsPage() {
 											<XIcon className="h-4 w-4 text-red-500" />
 										)}
 									</div>
-									{user?.twoFactorEnabled ? (
-										<div className="flex items-center gap-4">
-											<Button variant="outline">Disable</Button>
-											<Button variant="outline">
-												<QrCodeIcon className="h-4 w-4" />
-											</Button>
-										</div>
-									) : (
-										<Button variant="outline">Enable</Button>
-									)}
+									<TwoFactorDialog
+										is2FAEnabled={!!user?.twoFactorEnabled}
+									/>
 								</div>
 							</div>
 							{/* <CardFooter className="px-0 pt-4">

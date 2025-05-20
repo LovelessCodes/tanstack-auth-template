@@ -1,12 +1,9 @@
-import { Slot } from "@radix-ui/react-slot";
-import { OTPInput } from "input-otp";
 import { ChevronLeft } from "lucide-react";
-import { type ReactNode, useEffect, useId, useRef, useState } from "react";
+import { type ReactNode, useEffect, useId, useState } from "react";
 import useMeasure from "react-use-measure";
 import { Button } from "~/components/ui/button";
 import {
 	Dialog,
-	DialogClose,
 	DialogContent,
 	DialogDescription,
 	DialogFooter,
@@ -18,8 +15,8 @@ import { TransitionPanel } from "~/components/ui/transition-panel";
 import { signinStore } from "~/hooks/signin.store";
 import { SignInForm } from "../form/sign-in.form";
 import { SignUpForm } from "../form/sign-up.form";
-
-const CORRECT_CODE = "6548";
+import { OTPForm } from "../form/otp.form";
+import TwoFactorForm from "../form/two-factor.form";
 
 export default function SignInDialog() {
 	const [activeIndex, setActiveIndex] = useState(0);
@@ -30,35 +27,10 @@ export default function SignInDialog() {
 
 	const { open, setOpen } = signinStore();
 
-	const [hasGuessed, setHasGuessed] = useState<undefined | boolean>(undefined);
-	const [value, setValue] = useState("");
-	const inputRef = useRef<HTMLInputElement>(null);
-	const closeButtonRef = useRef<HTMLButtonElement>(null);
-
 	const handleSetActiveIndex = (newIndex: number) => {
 		setDirection(newIndex > activeIndex ? 1 : -1);
 		setActiveIndex(newIndex);
 	};
-
-	useEffect(() => {
-		if (hasGuessed) {
-			closeButtonRef.current?.focus();
-		}
-	}, [hasGuessed]);
-
-	async function onSubmit(e?: React.FormEvent<HTMLFormElement>) {
-		e?.preventDefault?.();
-
-		inputRef.current?.select();
-		await new Promise((r) => setTimeout(r, 1_00));
-
-		setHasGuessed(value === CORRECT_CODE);
-
-		setValue("");
-		setTimeout(() => {
-			inputRef.current?.blur();
-		}, 20);
-	}
 
 	const TABS = [
 		{
@@ -109,60 +81,16 @@ export default function SignInDialog() {
 			),
 		},
 		{
+			id: "2fa",
+			title: "Two-factor authentication",
+			description: "Enter the 2FA code from your authentication device.",
+			content: <TwoFactorForm />,
+		},
+		{
 			id: "otp",
 			title: "Enter OTP",
 			description: "Enter the OTP sent to your email.",
-			content: (
-				<>
-					{hasGuessed ? (
-						<div className="text-center">
-							<DialogClose asChild>
-								<Button type="button" ref={closeButtonRef}>
-									Close
-								</Button>
-							</DialogClose>
-						</div>
-					) : (
-						<div className="space-y-4">
-							<div className="flex justify-center">
-								<OTPInput
-									id="cofirmation-code"
-									ref={inputRef}
-									value={value}
-									onChange={setValue}
-									containerClassName="flex items-center gap-3 has-disabled:opacity-50"
-									maxLength={4}
-									onFocus={() => setHasGuessed(undefined)}
-									render={({ slots }) => (
-										<div className="flex gap-2">
-											{slots.map((slot, idx) => (
-												// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-												<Slot key={idx} {...slot} />
-											))}
-										</div>
-									)}
-									onComplete={onSubmit}
-								/>
-							</div>
-							{hasGuessed === false && (
-								<p
-									className="text-muted-foreground text-center text-xs"
-									role="alert"
-									aria-live="polite"
-								>
-									Invalid code. Please try again.
-								</p>
-							)}
-							<p className="text-center text-sm">
-								{/* biome-ignore lint/a11y/useValidAnchor: <explanation> */}
-								<a className="underline hover:no-underline" href="#">
-									Resend code
-								</a>
-							</p>
-						</div>
-					)}
-				</>
-			),
+			content: <OTPForm />,
 		},
 	];
 
@@ -172,7 +100,13 @@ export default function SignInDialog() {
 	}, [activeIndex, TABS.length]);
 
 	return (
-		<Dialog open={open} onOpenChange={setOpen}>
+		<Dialog
+			open={open}
+			onOpenChange={(e) => {
+				setOpen(e);
+				setActiveIndex(0);
+			}}
+		>
 			<DialogContent className="overflow-x-hidden px-16">
 				{activeIndex !== 0 && (
 					<button
