@@ -8,6 +8,7 @@ import { Card } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import { Skeleton } from "~/components/ui/skeleton";
 import { passkey } from "~/utils/client/auth";
+import { XIcon } from "lucide-react";
 
 interface PasskeyListProps {
   passkeys: Passkey[] | null | undefined;
@@ -57,6 +58,11 @@ export function PasskeyList({ passkeys }: PasskeyListProps) {
     }
   };
 
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setEditName("");
+  };
+
   if (!passkeys?.length) {
     return (
       <div className="text-center py-8 text-muted-foreground">
@@ -85,12 +91,19 @@ export function PasskeyList({ passkeys }: PasskeyListProps) {
                   >
                     <CheckIcon className="h-4 w-4" />
                   </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleCancelEdit()}
+                  >
+                    <XIcon className="h-4 w-4" />
+                  </Button>
                 </div>
               ) : (
-                <div className="font-medium">{pk.name}</div>
+                <div className="font-medium">{pk.name || pk.id}</div>
               )}
               <div className="text-sm text-muted-foreground">
-                {pk.deviceType} • Used {pk.counter} times •{" "}
+                {pk.deviceType} • Created {pk.createdAt.toLocaleString()} •{" "}
                 {pk.backedUp ? "Backed up" : "Not backed up"}
               </div>
             </div>
