@@ -15,6 +15,7 @@ import { AddPasskeyDialog } from "~/components/dialog/add-passkey.dialog";
 import { BackupCodesDialog } from "~/components/dialog/backup-codes.dialog";
 import { TwoFactorDialog } from "~/components/dialog/two-factor.dialog";
 import PasswordInput from "~/components/input/password.input";
+import { PasskeyList } from "~/components/list/passkey.list";
 import { Button } from "~/components/ui/button";
 import {
 	Card,
@@ -268,12 +269,7 @@ function SecuritySettingsPage() {
 						</CardDescription>
 					</CardHeader>
 					<CardContent>
-						{/* Let's show a list of the passkeys the user has assigned */}
-						{passkeyList?.length ? passkeyList?.map((passkey) => (
-							<div key={passkey.id}>
-								{passkey.name} {passkey.deviceType}
-							</div>
-						)) : "No passkeys assigned" }
+						<PasskeyList passkeys={passkeyList} />
 					</CardContent>
 				</Card>
 			</div>
