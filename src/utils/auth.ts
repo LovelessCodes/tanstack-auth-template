@@ -83,7 +83,7 @@ export const auth = betterAuth({
 	plugins: [twoFactor(), passkey({
 		rpName: process.env.BETTER_AUTH_APP_NAME || "tanstack-auth-template",
 		rpID: process.env.BETTER_AUTH_APP_ID || "localhost",
-		origin: process.env.VITE_BETTER_AUTH_URL || "http://localhost:4005",
+		origin: process.env.BETTER_AUTH_URL || "http://localhost:4005",
 	}), admin()],
 	user: {
 		additionalFields: {
