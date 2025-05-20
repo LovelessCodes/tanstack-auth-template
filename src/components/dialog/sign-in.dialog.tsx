@@ -15,7 +15,6 @@ import { TransitionPanel } from "~/components/ui/transition-panel";
 import { signinStore } from "~/hooks/signin.store";
 import { SignInForm } from "../form/sign-in.form";
 import { SignUpForm } from "../form/sign-up.form";
-import { OTPForm } from "../form/otp.form";
 import TwoFactorForm from "../form/two-factor.form";
 
 export default function SignInDialog() {
@@ -84,13 +83,7 @@ export default function SignInDialog() {
 			id: "2fa",
 			title: "Two-factor authentication",
 			description: "Enter the 2FA code from your authentication device.",
-			content: <TwoFactorForm />,
-		},
-		{
-			id: "otp",
-			title: "Enter OTP",
-			description: "Enter the OTP sent to your email.",
-			content: <OTPForm />,
+			content: <TwoFactorForm onBack={() => handleSetActiveIndex(0)} />,
 		},
 	];
 

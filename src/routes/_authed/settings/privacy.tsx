@@ -1,12 +1,13 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { useMutation } from "@tanstack/react-query";
+import { createFileRoute } from "@tanstack/react-router";
 import {
 	CheckIcon,
 	QrCodeIcon,
 	RectangleEllipsisIcon,
 	XIcon,
 } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -17,22 +18,20 @@ import {
 	Card,
 	CardContent,
 	CardDescription,
-	CardFooter,
 	CardHeader,
 	CardTitle,
 } from "~/components/ui/card";
 import {
 	Form,
 	FormControl,
-	FormDescription,
 	FormField,
 	FormItem,
 	FormLabel,
 	FormMessage,
 } from "~/components/ui/form";
-import { Input } from "~/components/ui/input";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "~/components/ui/tooltip";
 import { Route as RootRoute } from "~/routes/__root";
-import { $ERROR_CODES, changePassword } from "~/utils/client/auth";
+import { changePassword } from "~/utils/client/auth";
 
 export const Route = createFileRoute("/_authed/settings/privacy")({
 	component: SecuritySettingsPage,
@@ -138,54 +137,58 @@ function SecuritySettingsPage() {
 								onSubmit={form.handleSubmit(onSubmit)}
 								className="space-y-6"
 							>
-								<FormField
-									name="old_password"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Old Password</FormLabel>
-											<FormControl>
-												<PasswordInput
-													placeholder="your-old-password"
-													{...field}
-													value={field.value || ""}
-												/>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-								<FormField
-									name="password"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Password</FormLabel>
-											<FormControl>
-												<PasswordInput
-													placeholder="your-password"
-													{...field}
-													value={field.value || ""}
-												/>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-								<FormField
-									name="confirm_password"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Confirm Password</FormLabel>
-											<FormControl>
-												<PasswordInput
-													placeholder="your-new-password"
-													{...field}
-													value={field.value || ""}
-												/>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
+								<AnimatePresence>
+									<FormField
+										name="old_password"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>Old Password</FormLabel>
+												<FormControl>
+													<PasswordInput
+														placeholder="your-old-password"
+														{...field}
+														value={field.value || ""}
+													/>
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+									<FormField
+										name="password"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>Password</FormLabel>
+												<FormControl>
+													<PasswordInput
+														placeholder="your-new-password"
+														{...field}
+														value={field.value || ""}
+													/>
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+									{form.getFieldState("password").isDirty && (<FormField
+										name="confirm_password"
+										render={({ field }) => (
+											<motion.div initial={{ opacity: 0, y: -50 }} animate={{ opacity: 1, y: 0 }}>
+												<FormItem>
+													<FormLabel>Confirm Password</FormLabel>
+													<FormControl>
+														<PasswordInput
+															placeholder="your-new-password"
+															{...field}
+															value={field.value || ""}
+														/>
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											</motion.div>
+										)}
+									/>)}
+								</AnimatePresence>
 
 								<Button type="submit" disabled={mutation.isPending}>
 									{mutation.isPending ? "Saving..." : "Save Changes"}
@@ -196,42 +199,65 @@ function SecuritySettingsPage() {
 				</Card>
 				<Card>
 					<CardHeader>
-						<CardTitle>Two Factor Authentication</CardTitle>
+						<CardTitle className="flex items-center gap-2">Two Factor Authentication 
+							<TooltipProvider>
+								<Tooltip>
+									<TooltipTrigger asChild>
+										{user?.twoFactorEnabled ? (
+											<CheckIcon className="h-4 w-4" />
+										) : (
+											<XIcon className="h-4 w-4" />
+										)}
+									</TooltipTrigger>
+									<TooltipContent>
+										{user?.twoFactorEnabled ? "Enabled" : "Disabled"}
+									</TooltipContent>
+								</Tooltip>
+							</TooltipProvider>
+						</CardTitle>
 						<CardDescription>
-							Enable two factor authentication to add an extra layer of security
-							to your account.
+							Two factor authentication adds an extra layer of security to
+							your account.
 						</CardDescription>
 					</CardHeader>
 					<CardContent>
-						<div className="space-y-6">
-							<div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center mb-6">
-								<div className="flex flex-col gap-2">
-									<div className="relative justify-center gap-4 items-center flex">
-										<RectangleEllipsisIcon className="h-4 w-4 text-muted-foreground" />
-										{user?.twoFactorEnabled ? (
-											<CheckIcon className="h-4 w-4 text-green-500" />
-										) : (
-											<XIcon className="h-4 w-4 text-red-500" />
-										)}
-									</div>
-									<TwoFactorDialog
-										is2FAEnabled={!!user?.twoFactorEnabled}
-									/>
-								</div>
+						<TwoFactorDialog
+							is2FAEnabled={!!user?.twoFactorEnabled}
+						/>
+						{!!user?.twoFactorEnabled && (
+							<div className="flex items-center gap-2 w-fit py-2">
+								<TooltipProvider>
+									<Tooltip>
+										<TooltipTrigger>
+											<TwoFactorDialog isShowQR is2FAEnabled={!!user?.twoFactorEnabled} />
+										</TooltipTrigger>
+										<TooltipContent>
+											Show 2FA QR Code
+										</TooltipContent>
+									</Tooltip>
+								</TooltipProvider>
+								<TooltipProvider>
+									<Tooltip>
+										<TooltipTrigger asChild>
+											<Button variant="outline">
+												<RectangleEllipsisIcon className="h-4 w-4" />
+											</Button>
+										</TooltipTrigger>
+										<TooltipContent>
+											Show Backup Codes
+										</TooltipContent>
+									</Tooltip>
+								</TooltipProvider>
 							</div>
-							{/* <CardFooter className="px-0 pt-4">
-                <Button type="submit" disabled={mutation.isPending || !form.formState.isDirty}>
-                  {mutation.isPending ? "Saving..." : "Save Changes"}
-                </Button>
-              </CardFooter> */}
-						</div>
+						)}
 					</CardContent>
 				</Card>
 				<Card>
 					<CardHeader>
 						<CardTitle>Passkeys</CardTitle>
 						<CardDescription>
-							Add a passkey to your account for an additional layer of security.
+							Passkeys are a secure way to access your account, which adds an
+							additional layer of security to your account.
 						</CardDescription>
 					</CardHeader>
 				</Card>

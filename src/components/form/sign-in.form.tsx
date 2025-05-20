@@ -2,7 +2,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
 import { useId } from "react";
 import { toast } from "sonner";
-import { $ERROR_CODES, signIn } from "~/utils/client/auth";
+import { signIn } from "~/utils/client/auth";
 import PasswordInput from "~/components/input/password.input";
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
@@ -16,7 +16,7 @@ const signInSchema = z.object({
 	email: z.string().email("Invalid email"),
 	password: z.string().min(8, "Password must be at least 8 characters"),
 	rememberMe: z.boolean(),
-})
+});
 
 type SignInFormValues = z.infer<typeof signInSchema>;
 
@@ -39,38 +39,58 @@ export function SignInForm({
 			fetch("/api/socials").then((res) => res.json() as Promise<string[]>),
 	});
 
-	const { mutate, status } = useMutation({
-		mutationFn: (data: SignInFormValues) =>
-			signIn.email({
-				email: data.email,
-				password: data.password,
-				rememberMe: data.rememberMe,
-			}, {
-				onSuccess: async (data) => {
-					if (data.data.twoFactorRedirect) {
-						handleSetActiveIndex(3);
-						return;
-					}
-					toast.success("Signed in successfully");
+	const handleSignIn = async (data: SignInFormValues) => {
+		toast.promise(
+			signIn.email(
+				{
+					email: data.email,
+					password: data.password,
+					rememberMe: data.rememberMe,
+				},
+				{
+					onSuccess: async (data) => {
+						if (data.data.twoFactorRedirect) {
+							handleSetActiveIndex(3);
+							throw {
+								error: {
+									code: "TWO_FACTOR_REDIRECT",
+									message: "Two factor authentication required",
+								},
+							};
+						}
+					},
+					onError: (error) => {
+						if (error.error.code === "INVALID_EMAIL_OR_PASSWORD") {
+							form.setError("email", {
+								message: "Invalid email or password",
+							});
+						}
+						if (error.error.code === "EMAIL_NOT_VERIFIED") {
+							form.setError("email", {
+								message: "Email not verified",
+							});
+						}
+						throw error;
+					},
+				},
+			),
+			{
+				loading: "Signing in...",
+				success: async () => {
 					await router.invalidate();
 					router.navigate({ to: "/" });
+					return "Signed in successfully";
 				},
-				onError: (error) => {
-					if (error.error.code === "INVALID_EMAIL_OR_PASSWORD") {
-						form.setError("email", {
-							message: "Invalid email or password",
-						});
-						return;
-					}
-					if (error.error.code === "EMAIL_NOT_VERIFIED") {
-						form.setError("email", {
-							message: "Email not verified",
-						});
-						return;
-					}
-					toast.error(error.error.message);
+				error: (error) => {
+					return error.error.message;
 				},
-			}),
+			},
+		);
+	};
+
+	const { mutate, status } = useMutation({
+		mutationFn: handleSignIn,
+		mutationKey: ["sign-in"],
 	});
 
 	return (
@@ -94,7 +114,10 @@ export function SignInForm({
 					</div>
 				</>
 			)}
-			<form className="space-y-5" onSubmit={form.handleSubmit((data) => mutate(data))}>
+			<form
+				className="space-y-5"
+				onSubmit={form.handleSubmit((data) => mutate(data))}
+			>
 				<div className="space-y-4">
 					<div className="*:not-first:mt-2">
 						<Label htmlFor={`${id}-email`}>Email</Label>

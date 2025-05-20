@@ -14,9 +14,11 @@ import {
 } from "~/components/ui/input-otp";
 import { twoFactor } from "~/utils/client/auth";
 import { useRouter } from "@tanstack/react-router";
+import { Checkbox } from "../ui/checkbox";
 
 const twoFactorSchema = z.object({
 	code: z.string().length(6, "Verification code must be 6 digits"),
+	trustDevice: z.boolean(),
 });
 
 type TwoFactorFormValues = z.infer<typeof twoFactorSchema>;
@@ -24,9 +26,10 @@ type TwoFactorFormValues = z.infer<typeof twoFactorSchema>;
 export interface TwoFactorFormProps {
 	onSuccess?: () => void;
 	onBack?: () => void;
+	isShowQR?: boolean;
 }
 
-export function TwoFactorForm({ onSuccess, onBack }: TwoFactorFormProps) {
+export function TwoFactorForm({ onSuccess, onBack, isShowQR }: TwoFactorFormProps) {
 	const [isLoading, setIsLoading] = useState(false);
 	const router = useRouter();
 	const [remainingTime, setRemainingTime] = useState(0);
@@ -73,6 +76,7 @@ export function TwoFactorForm({ onSuccess, onBack }: TwoFactorFormProps) {
 		resolver: zodResolver(twoFactorSchema),
 		defaultValues: {
 			code: "",
+			trustDevice: false,
 		},
 	});
 
@@ -82,10 +86,11 @@ export function TwoFactorForm({ onSuccess, onBack }: TwoFactorFormProps) {
 			await twoFactor.verifyTotp(
 				{
 					code: data.code,
+					trustDevice: data.trustDevice,
 				},
 				{
 					onSuccess: () => {
-						toast.success("Successfully verified and signed in");
+						isShowQR ? toast.success("Successfully verified and enabled") : toast.success("Successfully verified and signed in");
 						onSuccess?.();
 						router.invalidate();
 					},
@@ -108,12 +113,15 @@ export function TwoFactorForm({ onSuccess, onBack }: TwoFactorFormProps) {
 				<div className="flex flex-col items-center gap-4">
 					<div className="relative w-full max-w-xs">
 						<InputOTP
+							id="cofirmation-code"
 							maxLength={6}
 							value={form.watch("code")}
+							autoFocus
+							autoComplete="one-time-code webauthn"
+							inputMode="numeric"
 							onChange={(value) =>
 								form.setValue("code", value, { shouldValidate: true })
 							}
-							autoComplete="one-time-code"
 							containerClassName="w-full flex justify-center items-center"
 						>
 							<InputOTPGroup>
@@ -153,9 +161,33 @@ export function TwoFactorForm({ onSuccess, onBack }: TwoFactorFormProps) {
 						{form.formState.errors.code.message}
 					</motion.p>
 				)}
+				{!isShowQR && (
+					<div className="flex items-center justify-center gap-2">
+						<Checkbox
+							id="trustDevice"
+							checked={form.watch("trustDevice")}
+							onCheckedChange={(checked) =>
+								form.setValue("trustDevice", checked === true)
+							}
+						/>
+						<label htmlFor="trustDevice">Trust this device</label>
+					</div>
+				)}
 			</div>
 
-			<div className="space-y-3">
+			<div className="flex items-center gap-4 justify-center">
+				{onBack && (
+					<Button
+						type="button"
+						variant="ghost"
+						className="w-full"
+						onClick={onBack}
+						disabled={isLoading}
+					>
+						{isShowQR ? "Back to QR Code" : "Back to sign in"}
+					</Button>
+				)}
+
 				<Button type="submit" className="w-full" disabled={isLoading}>
 					{isLoading ? (
 						<>
@@ -166,18 +198,6 @@ export function TwoFactorForm({ onSuccess, onBack }: TwoFactorFormProps) {
 						"Verify Code"
 					)}
 				</Button>
-
-				{onBack && (
-					<Button
-						type="button"
-						variant="ghost"
-						className="w-full mt-4"
-						onClick={onBack}
-						disabled={isLoading}
-					>
-						Back to sign in
-					</Button>
-				)}
 			</div>
 		</form>
 	);
