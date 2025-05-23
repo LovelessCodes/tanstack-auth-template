@@ -1,4 +1,5 @@
 # 🚀 TanStack Auth Template
+[![TanStack x Better Auth Template Demo Status Badge](https://kener.less.cx/badge/Demo_Project/status?labelColor=&color=&style=for-the-badge&label=TanStack%20x%20Better%20Auth%20Template%20-%20Demo)![TanStack x Better Auth Template Demo Status Badge 2](https://kener.less.cx/badge/Demo_Project/dot?animate=ping)](https://demo.less.cx)
 
 A modern, full-stack authentication template built with TanStack, Better-Auth, and Drizzle ORM. This template provides a solid foundation for building secure, performant web applications with a focus on developer experience.
 
